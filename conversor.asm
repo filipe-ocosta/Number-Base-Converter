@@ -3,7 +3,7 @@
 	
 	#definindo os valores que serao lidos do teclado
 	#lendo o nro_entrada_D como um int e os outros dois como string
-	nro_hexa: .space 17
+	nro_hexa: .space 8
 	nro_bin: .space 33
 	 
 	
@@ -71,7 +71,7 @@ entradaHex:
 
 	li $v0, 8
 	la $a0, nro_hexa
-	li $a1, 17
+	li $a1, 8
 	syscall
 
 	j HextoDec
@@ -166,9 +166,9 @@ printHex:
 	la $a0, str_final
 	syscall
 
-	#li $v0, 1
-	#la $a0, $t5
-	#syscall
+	li $v0, 4
+	move $a0, $t6
+	syscall
 
 	j end
 
@@ -189,12 +189,36 @@ printBin:
 
 HextoDec:
 
+
 BintoDec:
 
 
 DectoHex:
 
-
+	li $t0, 8	 
+	la $t6, nro_hexa	
+	move $t3, $t6
+	
+	Loop:
+	beqz $t0, retorno	
+	rol $t5, $t5, 4	
+	and $t4, $t5, 15	
+	ble $t4, 9, Sum	
+	addi $t4, $t4, 55	
+	j End
+	 
+	Sum: 
+	addi $t4, $t4, 48	
+	
+	End: 
+	sb $t4, 0($t3)	
+	addi $t3, $t3, 1	
+	addi $t0, $t0, -1	
+	j Loop
+		
+	retorno:
+		j printHex
+		 
 DectoBin:
 	lw $s1, numeroDecimal
 	li $t0, 2
