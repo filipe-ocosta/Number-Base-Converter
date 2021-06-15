@@ -84,7 +84,7 @@ entradaBin:
 
 	li $v0, 8
 	la $a0, nro_bin
-	li $a1, 33
+	li $a1, 32
 	syscall
 
 	j BintoDec
@@ -191,6 +191,36 @@ HextoDec:
 
 
 BintoDec:
+	la $s1, nro_bin
+	li $s2, 0
+	li $s3, '\0'
+	li $s4, '0'
+	li $s5, 1
+	li $s6, 0
+	li $s7, 2
+	lb $t7, 0($s1)
+	li $t9, '\n'
+	
+	findLength:
+		beq $s3, $t7, converterBD
+		beq $t9, $t7, converterBD
+		addi $s1, $s1, 1
+		addi $s2, $s2, 1
+		lb $t7, 0($s1)
+		j findLength
+	
+	converterBD:
+		sw $s6, numeroDecimal
+		beq $s2, $zero, baseSaida
+		addi $s1, $s1, -1
+		lb $t7, 0($s1)
+		beq $s4, $t7, continue
+		add $s6, $s6, $s5
+		continue:
+			mul $s5, $s5, $s7
+			addi $s2, $s2, -1
+			j converterBD
+
 
 
 DectoHex:
