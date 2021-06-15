@@ -4,7 +4,7 @@
 	#definindo os valores que serao lidos do teclado
 	#lendo o nro_entrada_D como um int e os outros dois como string
 	nro_hexa: .space 17
-	nro_bin: .asciiz "00000000000000000000000000000000"
+	nro_bin: .space 33
 	 
 	
 	#strings quer serao impressas ao decorrer do programa
@@ -179,7 +179,7 @@ printBin:
 	syscall
 
 	li $v0, 4
-	la $a0, nro_bin
+	move $a0, $t7
 	syscall
 
 	j end
@@ -199,17 +199,17 @@ DectoBin:
 	lw $s1, numeroDecimal
 	li $t0, 2
 			
-	li $t6, '\n'
+	li $t6, '\0'
 
 	la $t7, nro_bin
 	
-	addi $t7, $t7, 31
+	addi $t7, $t7, 32
 										
 	sb $t6, 0($t7)
 				
 				
 	while: 
-		blt $s1, $t0, finaliza
+		blt $s1, $t0, endWhile
 
 		sub $t7, $t7, 1
 						
@@ -218,12 +218,12 @@ DectoBin:
 					
 		#pegando resto
 		mfhi $t5
-		beq $t5, $zero,viraZero
+		beq $t5, $zero,addZero
 		li $t5, '1'
-		j pula
-		viraZero:
+		j addOne
+		addZero:
 			li $t5, '0'
-		pula:
+		addOne:
 			sb $t5, 0($t7)
 					
 		#pegando resultado da divisao
@@ -231,8 +231,13 @@ DectoBin:
 		j while
 
 
-finaliza:
-	sub $t7, $t7, 1
-	li $t5, '1'
-	sb $t5, 0($t7)
-	j printBin
+	endWhile:
+		sub $t7, $t7, 1
+		beq $s1,$zero, lastBitZero 
+		li $t5, '1'
+		j lastBitOne
+		lastBitZero:
+			li $t5, '0'
+		lastBitOne:
+			sb $t5, 0($t7)
+			j printBin
