@@ -195,6 +195,7 @@ BintoDec:
 	li $s2, 0
 	li $s3, '\0'
 	li $s4, '0'
+	li $t4, '1'
 	li $s5, 1
 	li $s6, 0
 	li $s7, 2
@@ -215,6 +216,7 @@ BintoDec:
 		addi $s1, $s1, -1
 		lb $t7, 0($s1)
 		beq $s4, $t7, continue
+		bne $t4, $t7, error
 		add $s6, $s6, $s5
 		continue:
 			mul $s5, $s5, $s7
