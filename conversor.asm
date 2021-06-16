@@ -11,7 +11,7 @@
 	str_basei: .asciiz "Insira a base do numero entre as opcoes: B, H ou D\n"
 	str_nro: .asciiz "Insira um numero de acordo com a base escolhida\n"
 	str_basef: .asciiz "Insira a base do numero de saida\n"
-    	str_final: .asciiz "\nO numero convertido para a base escolhida eh: "
+    str_final: .asciiz "\nO numero convertido para a base escolhida eh: "
 
 	#string de erro
 	str_erro: .asciiz "\Entrada invalida!\n"
@@ -65,10 +65,12 @@ end:						#finaliza o programa
 
 
 entradaHex:
+	#printando string
 	li $v0, 4
 	la $a0, str_nro
 	syscall
 
+	#lendo o numero hexa como uma string
 	li $v0, 8
 	la $a0, nro_hexa
 	li $a1, 8
@@ -78,10 +80,12 @@ entradaHex:
 
 
 entradaBin:
+	#printando uma string
 	li $v0, 4
 	la $a0, str_nro
 	syscall
 
+	#lendo o numero binario como uma string
 	li $v0, 8
 	la $a0, nro_bin
 	li $a1, 32
@@ -91,22 +95,23 @@ entradaBin:
 
 
 entradaDec:
+
+	#printado uma string
 	li $v0, 4
 	la $a0, str_nro
 	syscall
 
+	#lendo um inteiro
 	li $v0, 5
 	syscall
 	
+	#transferindo o conteudo
 	move $t5, $v0
-	
-	#para a execuçao normal os dois passos abaixos nao sao necessarios, porem para a execucao passo a passo sao!!
-	#li $v0, 12
-	#syscall
-	
-
+		
+	#caso o numero seja negativo, erro
 	blt $t5, $zero, error
 
+	#salvando o numero lido na variavel definida na ram
 	sw $t5, numeroDecimal
 
 
@@ -150,10 +155,13 @@ sentToConverter:
 	j error
 
 printDec:
+
+	#printando uma string
 	li $v0, 4 
 	la $a0, str_final
 	syscall
 
+	#printando o decimal
 	li $v0, 1
 	lw $a0, numeroDecimal
 	syscall
@@ -162,10 +170,13 @@ printDec:
 
 
 printHex:
+
+	#printando uma string
 	li $v0, 4 
 	la $a0, str_final
 	syscall
 
+	#printando a string que contem o numero hexadecimal
 	li $v0, 4
 	move $a0, $t6
 	syscall
@@ -174,35 +185,124 @@ printHex:
 
 
 printBin:
+	#printando uma string
 	li $v0, 4 
 	la $a0, str_final
 	syscall
 
+	#printando a string binaria
 	li $v0, 4
 	move $a0, $t7
 	syscall
 
 	j end
 
-#############################################################################################################################3
+##############################################################################################################################
 # Conversores
 
 HextoDec:
+	
+	#carregando o endereço da string com o nro hexadecimal para s1
+	la $s1, nro_hexa
 
+	#s2 será utilizado para armazenar o tamanho da string
+	li $s2, 0
+
+	#s3 e s9 utilizados para identificar o fim da string e desviar a função
+	li $s3, '\0'
+	li $t9, '\n'
+
+	#s5 guarda o valor das potencias de 16, subindo a cada execução
+	li $s5, 1
+
+	#utilizado para multiplicar juntamente com s5
+	li $s7, 16
+
+	#utilizado como somador
+	li $s6, 0
+
+	#t7 vai guardar o valor de cada bit da string
+	lb $t7, 0($s1)
+
+	achaTamanho:
+	#comparações
+		beq $s3, $t7, converterHD
+		beq $t9, $t7, converterHD
+		addi $s1, $s1, 1
+		addi $s2, $s2, 1
+		lb $t7, 0($s1)
+		j achaTamanho
+	
+	converterHD:
+		sw $s6, numeroDecimal
+		beq $s2, $zero, baseSaida
+		addi $s1, $s1, -1
+		lb $t7, 0($s1)
+		sub $t7, $t7, 48
+		blt $t7, $zero, error 
+		
+		#valor utilizado para comparação posteriormente
+		li $s4, 9
+
+		#caso t7 seja <= 9 pula para a etapa de multiplicação
+		ble $t7, $s4  multiPot 
+		sub $t7, $t7, 7
+
+		#se após a subtração o valor continuar sendo <=9, isso indica erro
+		ble $t7, $s4, error
+		li $s4, 15
+
+		bgt $t7, $s4, error
+
+	#caso entre nesse rotulo, isso significa que o numero é válido
+	multiPot:
+		#multiplicando a potencia de 16 com o valor do bit e armzenando em t5
+		mul $t5, $s5, $t7
+
+		#s6 guarda o valor do numero decimal
+		add $s6, $s6, $t5
+
+		#multiplicando 16 pela potencia atual de 16 e guardando em s5 para salvar a potencia
+		mul $s5, $s5, $s7
+
+		#decrementendo a posição atual
+		addi $s2, $s2, -1
+		j converterHD
+
+	
 
 BintoDec:
+
+	#carregando o endereço da string com o nro binario para s1
 	la $s1, nro_bin
+
+	#s2 será utilizado para armazenar o tamanho da string
 	li $s2, 0
+
+	#s3 e s9 utilizados para identificar o fim da string e desviar a função
 	li $s3, '\0'
-	li $s4, '0'
-	li $t4, '1'
-	li $s5, 1
-	li $s6, 0
-	li $s7, 2
-	lb $t7, 0($s1)
 	li $t9, '\n'
 	
+	#s4 e t4 utilizados para verificar cada bit individualmente e transformar para valor decimal
+	li $s4, '0'
+	li $t4, '1'
+	
+	#s5 guarda o valor das potencias de 2, subindo a cada execução
+	li $s5, 1
+
+	#utilizado para multiplicar juntamente com s5
+	li $s7, 2
+
+	#utilizado como somador
+	li $s6, 0
+
+	#t7 vai guardar o valor de cada bit da string
+	lb $t7, 0($s1)
+
+	#laço para definir o tamanho da string
 	findLength:
+
+		#comparações
 		beq $s3, $t7, converterBD
 		beq $t9, $t7, converterBD
 		addi $s1, $s1, 1
@@ -210,6 +310,8 @@ BintoDec:
 		lb $t7, 0($s1)
 		j findLength
 	
+	#esse laço percorre a string a partir do bit menos significativo, incrementando s6 caso o bit = 1
+	#laço responsavel por verificar se o numero é realmente binario
 	converterBD:
 		sw $s6, numeroDecimal
 		beq $s2, $zero, baseSaida
@@ -227,34 +329,46 @@ BintoDec:
 
 DectoHex:
 
-	li $t0, 8	 
-	la $t6, nro_hexa	
+	li $t0, 8 
+	la $t6, nro_hexa
+	lw $t5, numeroDecimal	
 	move $t3, $t6
 	
-	Loop:
-	beqz $t0, retorno	
-	rol $t5, $t5, 4	
-	and $t4, $t5, 15	
-	ble $t4, 9, Sum	
-	addi $t4, $t4, 55	
-	j End
-	 
-	Sum: 
-	addi $t4, $t4, 48	
+	addi $t3, $t3, 8
+	li $t9, '\0'
+	sb $t9, 0($t3)
 	
-	End: 
+	move $t3, $t6
+	
+	while:
+		beqz $t0, retorno	
+		rol $t5, $t5, 4	
+		and $t4, $t5, 15	
+		ble $t4, 9, soma	
+		addi $t4, $t4, 55	
+		j sai
+	 
+	soma: 
+		addi $t4, $t4, 48	
+	
+	sai: 
 	sb $t4, 0($t3)	
 	addi $t3, $t3, 1	
 	addi $t0, $t0, -1	
-	j Loop
+	j while
 		
 	retorno:
 		j printHex
 		 
 DectoBin:
+
+	#salvando o numero decimal
 	lw $s1, numeroDecimal
+
+	#utilizado para efetuar as divisões
 	li $t0, 2
-			
+	
+	
 	li $t6, '\0'
 
 	la $t7, nro_bin
@@ -264,8 +378,8 @@ DectoBin:
 	sb $t6, 0($t7)
 				
 				
-	while: 
-		blt $s1, $t0, endWhile
+	laco: 
+		blt $s1, $t0, endLaco
 
 		sub $t7, $t7, 1
 						
@@ -274,9 +388,14 @@ DectoBin:
 					
 		#pegando resto
 		mfhi $t5
+
+		#verificando resultado para converter de acordo com o retorno da branch
 		beq $t5, $zero,addZero
+
+		#nesse caso, não é igual a 0
 		li $t5, '1'
 		j addOne
+		
 		addZero:
 			li $t5, '0'
 		addOne:
@@ -284,16 +403,18 @@ DectoBin:
 					
 		#pegando resultado da divisao
 		mflo $s1
-		j while
+		j laco
 
 
-	endWhile:
+	endLaco:
 		sub $t7, $t7, 1
 		beq $s1,$zero, lastBitZero 
 		li $t5, '1'
 		j lastBitOne
+		
 		lastBitZero:
 			li $t5, '0'
+
 		lastBitOne:
 			sb $t5, 0($t7)
 			j printBin
