@@ -3,15 +3,15 @@
 	
 	#definindo os valores que serao lidos do teclado
 	#lendo o nro_entrada_D como um int e os outros dois como string
-	nro_hexa: .space 8
+	nro_hexa: .space 9
 	nro_bin: .space 33
 	 
 	
 	#strings quer serao impressas ao decorrer do programa
 	str_basei: .asciiz "Insira a base do numero entre as opcoes: B, H ou D\n"
 	str_nro: .asciiz "Insira um numero de acordo com a base escolhida\n"
-	str_basef: .asciiz "Insira a base do numero de saida\n"
-    str_final: .asciiz "\nO numero convertido para a base escolhida eh: "
+	str_basef: .asciiz "\nInsira a base do numero de saida\n"
+    str_final: .asciiz "O numero convertido para a base escolhida eh: "
 
 	#string de erro
 	str_erro: .asciiz "\Entrada invalida!\n"
@@ -73,7 +73,7 @@ entradaHex:
 	#lendo o numero hexa como uma string
 	li $v0, 8
 	la $a0, nro_hexa
-	li $a1, 8
+	li $a1, 9
 	syscall
 
 	j HextoDec
@@ -108,7 +108,7 @@ entradaDec:
 	#transferindo o conteudo
 	move $t5, $v0
 	
-	#verificar se o tamanho do decimal é válido
+	#verificar se o tamanho do decimal ï¿½ vï¿½lido
 	
 	
 	
@@ -166,7 +166,7 @@ printDec:
 	syscall
 
 	#printando o decimal
-	li $v0, 1
+	li $v0, 36
 	lw $a0, numeroDecimal
 	syscall
 
@@ -333,7 +333,7 @@ BintoDec:
 
 DectoHex:
 	
-	#criando uma variavel contadora que será utilizada como controle do laço
+	#criando uma variavel contadora que serï¿½ utilizada como controle do laï¿½o
 	li $t0, 8 
 	
 	la $t6, nro_hexa
@@ -352,10 +352,10 @@ DectoHex:
 		#rotacionando para os 4 bits mais significativos para que possam ser analisados, porque os bits serao analisados 4 por 4	
 		rol $t5, $t5, 4	
 		
-		#mascarando com 15 para que a analise possa ocorrer, uma vez que apenas os 4 bits mais significativos serão 1
+		#mascarando com 15 para que a analise possa ocorrer, uma vez que apenas os 4 bits mais significativos serï¿½o 1
 		and $t4, $t5, 15
 		
-		#comparações e manipulações de acordo com a tabela ascii	
+		#comparaï¿½ï¿½es e manipulaï¿½ï¿½es de acordo com a tabela ascii	
 		ble $t4, 9, soma	
 		addi $t4, $t4, 55	
 		j sai
