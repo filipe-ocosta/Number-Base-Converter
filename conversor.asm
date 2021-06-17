@@ -3,18 +3,18 @@
 	
 	#definindo os valores que serao lidos do teclado
 	#lendo o nro_entrada_D como um int e os outros dois como string
-	nro_hexa: .space 9
-	nro_bin: .space 33
+	nro_hexa: .space 10
+	nro_bin: .space 34
 	 
 	
 	#strings quer serao impressas ao decorrer do programa
 	str_basei: .asciiz "Insira a base do numero entre as opcoes: B, H ou D\n"
 	str_nro: .asciiz "Insira um numero de acordo com a base escolhida\n"
-	str_basef: .asciiz "\nInsira a base do numero de saida\n"
+	str_basef: .asciiz "Insira a base do numero de saida\n"
     str_final: .asciiz "O numero convertido para a base escolhida eh: "
 
 	#string de erro
-	str_erro: .asciiz "\Entrada invalida!\n"
+	str_erro: .asciiz "\nEntrada invalida!\n"
 
 	.align 2
 
@@ -73,7 +73,7 @@ entradaHex:
 	#lendo o numero hexa como uma string
 	li $v0, 8
 	la $a0, nro_hexa
-	li $a1, 9
+	li $a1, 10
 	syscall
 
 	j HextoDec
@@ -88,7 +88,7 @@ entradaBin:
 	#lendo o numero binario como uma string
 	li $v0, 8
 	la $a0, nro_bin
-	li $a1, 32
+	li $a1, 34
 	syscall
 
 	j BintoDec
@@ -211,6 +211,9 @@ HextoDec:
 
 	#s2 será utilizado para armazenar o tamanho da string
 	li $s2, 0
+	
+	#s4 sera usado para armazenar o tamanho maximo da string
+	li $s4, 8
 
 	#s3 e s9 utilizados para identificar o fim da string e desviar a função
 	li $s3, '\0'
@@ -224,19 +227,22 @@ HextoDec:
 
 	#utilizado como somador
 	li $s6, 0
+	
 
 	#t7 vai guardar o valor de cada bit da string
 	lb $t7, 0($s1)
 
 	achaTamanho:
 	#comparações
-		beq $s3, $t7, converterHD
-		beq $t9, $t7, converterHD
+		beq $s3, $t7, testeOverflow
+		beq $t9, $t7, testeOverflow
 		addi $s1, $s1, 1
 		addi $s2, $s2, 1
 		lb $t7, 0($s1)
 		j achaTamanho
 	
+	testeOverflow:
+		bgt $s2, $s4, error
 	converterHD:
 		sw $s6, numeroDecimal
 		beq $s2, $zero, baseSaida
@@ -302,18 +308,23 @@ BintoDec:
 
 	#t7 vai guardar o valor de cada bit da string
 	lb $t7, 0($s1)
+	
+	li $t1, 32
 
 	#laço para definir o tamanho da string
 	findLength:
 
 		#comparações
-		beq $s3, $t7, converterBD
-		beq $t9, $t7, converterBD
+		beq $s3, $t7, testeOver
+		beq $t9, $t7, testeOver
 		addi $s1, $s1, 1
 		addi $s2, $s2, 1
 		lb $t7, 0($s1)
 		j findLength
 	
+	
+	testeOver:
+		bgt $s2, $t1, error
 	#esse laço percorre a string a partir do bit menos significativo, incrementando s6 caso o bit = 1
 	#laço responsavel por verificar se o numero é realmente binario
 	converterBD:
@@ -347,7 +358,7 @@ DectoHex:
 	move $t3, $t6
 	
 	while:
-		beqz $t0, retorno
+		beqz $t0, retorno 
 		
 		#rotacionando para os 4 bits mais significativos para que possam ser analisados, porque os bits serao analisados 4 por 4	
 		rol $t5, $t5, 4	
