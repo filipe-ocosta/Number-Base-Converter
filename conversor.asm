@@ -107,10 +107,14 @@ entradaDec:
 	
 	#transferindo o conteudo
 	move $t5, $v0
-		
-	#caso o numero seja negativo, erro
+	
+	#verificar se o tamanho do decimal é válido
+	
+	
+	
+	#caso o numero seja negativo ou acima do limite permitido, erro
 	blt $t5, $zero, error
-
+	
 	#salvando o numero lido na variavel definida na ram
 	sw $t5, numeroDecimal
 
@@ -328,8 +332,10 @@ BintoDec:
 
 
 DectoHex:
-
+	
+	#criando uma variavel contadora que será utilizada como controle do laço
 	li $t0, 8 
+	
 	la $t6, nro_hexa
 	lw $t5, numeroDecimal	
 	move $t3, $t6
@@ -341,9 +347,15 @@ DectoHex:
 	move $t3, $t6
 	
 	while:
-		beqz $t0, retorno	
+		beqz $t0, retorno
+		
+		#rotacionando para os 4 bits mais significativos para que possam ser analisados, porque os bits serao analisados 4 por 4	
 		rol $t5, $t5, 4	
-		and $t4, $t5, 15	
+		
+		#mascarando com 15 para que a analise possa ocorrer, uma vez que apenas os 4 bits mais significativos serão 1
+		and $t4, $t5, 15
+		
+		#comparações e manipulações de acordo com a tabela ascii	
 		ble $t4, 9, soma	
 		addi $t4, $t4, 55	
 		j sai
