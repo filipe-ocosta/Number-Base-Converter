@@ -173,7 +173,7 @@ printHex:
 
 	#printando a string que contem o numero hexadecimal
 	li $v0, 4
-	move $a0, $t6
+	move $a0, $t7
 	syscall
 
 	j end
@@ -187,7 +187,7 @@ printBin:
 
 	#printando a string binaria
 	li $v0, 4
-	move $a0, $t6
+	move $a0, $t7
 	syscall
 
 	j end
@@ -416,17 +416,22 @@ DectoHex:
 	li $t9, '\0'
 	sb $t9, 0($t3)
 	
-	move $t3, $t6
+	addi $t3, $t3, -1
+	move $t7, $t3
+	li $t8, 0
 	
 	while:
 		beqz $t0, retorno 
 		
-		#rotacionando para os 4 bits mais significativos para que possam ser analisados, porque os bits serao analisados 4 por 4	
-		rol $t5, $t5, 4	
-		
 		#mascarando com 15 para que a analise possa ocorrer, uma vez que apenas os 4 bits mais significativos serao 1
 		and $t4, $t5, 15
+		beq $t4, $t8, rotacao
+		move $t7, $t3
 		
+		#rotacionando os bits para que a mascara seja aplicada em outras partes do numero inteiro
+		rotacao:
+			ror $t5, $t5, 4	
+
 		#comparacoes e manipulacoes de acordo com a tabela ascii	
 		ble $t4, 9, soma	
 		addi $t4, $t4, 55	
@@ -437,7 +442,7 @@ DectoHex:
 	
 	sai: 
 	sb $t4, 0($t3)	
-	addi $t3, $t3, 1	
+	addi $t3, $t3, -1	
 	addi $t0, $t0, -1	
 	j while
 		
