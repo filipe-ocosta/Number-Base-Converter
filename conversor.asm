@@ -5,14 +5,15 @@
 	#lendo o nro_entrada_D como um int e os outros dois como string
 	nro_hexa: .space 10
 	nro_bin: .space 34
-	 
+	nro_dec: .space 12
 	
 	#strings quer serao impressas ao decorrer do programa
 	str_basei: .asciiz "Insira a base do numero entre as opcoes: B, H ou D\n"
 	str_nro: .asciiz "Insira um numero de acordo com a base escolhida\n"
 	str_basef: .asciiz "Insira a base do numero de saida\n"
     str_final: .asciiz "O numero convertido para a base escolhida eh: "
-
+	str_dec: .asciiz "4294967295"
+ 
 	#string de erro
 	str_erro: .asciiz "\nEntrada invalida!\n"
 
@@ -102,22 +103,12 @@ entradaDec:
 	syscall
 
 	#lendo um inteiro
-	li $v0, 5
+	li $v0, 8
+	la $a0, nro_dec
+	li $a1, 12
 	syscall
 	
-	#transferindo o conteudo
-	move $t5, $v0
-	
-	#verificar se o tamanho do decimal eh valido
-	
-	
-	
-	#caso o numero seja negativo ou acima do limite permitido, erro
-	blt $t5, $zero, error
-	
-	#salvando o numero lido na variavel definida na ram
-	sw $t5, numeroDecimal
-
+	j StrtoDec
 
 baseSaida:
 	#printar "Insira a base do numero de saida\n"
@@ -339,6 +330,71 @@ BintoDec:
 			mul $s5, $s5, $s7
 			addi $s2, $s2, -1
 			j converterBD
+
+
+StrtoDec:
+
+	#carregando o endereco da string com o nro binario para s1
+	la $s1, nro_dec
+	la $t1, str_dec
+
+	#s2 sera utilizado para armazenar o tamanho da string
+	li $s2, 0
+
+	#s3 e s9 utilizados para identificar o fim da string e desviar a funcao
+	li $s3, '\0'
+	li $t9, '\n'
+	
+	#s5 guarda o valor das potencias de 2, subindo a cada execucao
+	li $s5, 1
+
+	#utilizado para multiplicar juntamente com s5
+	li $s7, 10
+
+	#utilizado como somador
+	li $s6, 0
+
+	#t7 vai guardar o valor de cada bit da string
+	lb $t7, 0($s1)
+	lb $t8, 0($t1)
+	
+
+	#laco para definir o tamanho da string
+	achaLength:
+
+		#percorre a string, guarda o tamanho dela em $s2 e posiciona o $t7 na ultima posicao
+		beq $s3, $t7, testeO
+		beq $t9, $t7, testeO
+		addi $s1, $s1, 1
+		addi $s2, $s2, 1
+		lb $t7, 0($s1)
+		j achaLength
+
+	
+	testeO:
+		bgt $s2, $s7, error
+		bne $s2, $s7, converterSD
+		sub $s1, $s1, $s2
+		lb $t7, 0($s1)
+		bgt $t7, $t8, error
+		add $s1, $s1, $s2
+		lb $t7, 0($s1)
+
+
+	#esse laco percorre a string a partir do bit menos significativo, incrementando s6 caso o bit = 1
+	#laco responsavel por verificar se o numero eh realmente binario
+	converterSD:
+		sw $s6, numeroDecimal
+		beq $s2, $zero, baseSaida
+		addi $s1, $s1, -1
+		lb $t7, 0($s1)
+		addi $t7, $t7, -48
+		bge $t7, $s7, error
+		mul $t9, $t7, $s5
+		add $s6, $s6, $t9
+		mul $s5, $s5, $s7
+		addi $s2, $s2, -1
+		j converterSD
 
 
 
