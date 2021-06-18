@@ -253,7 +253,11 @@ HextoDec:
 		ble $t7, $s4, error
 		li $s4, 15
 
+		ble $t7, $s4, multiPot
+		sub $t7, $t7, 32
 		bgt $t7, $s4, error
+		li $s4, 10
+		blt $t7, $s4, error
 
 	#caso entre nesse rotulo, isso significa que o numero eh valido
 	multiPot:
@@ -390,6 +394,7 @@ StrtoDec:
 		lb $t7, 0($s1)
 		addi $t7, $t7, -48
 		bge $t7, $s7, error
+		blt $t7, $zero, error
 		mul $t9, $t7, $s5
 		add $s6, $s6, $t9
 		mul $s5, $s5, $s7
