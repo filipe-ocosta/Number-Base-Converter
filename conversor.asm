@@ -182,7 +182,7 @@ printHex:
 
 	#printando a string que contem o numero hexadecimal
 	li $v0, 4
-	move $a0, $t6
+	move $a0, $t7
 	syscall
 
 	j end
@@ -196,7 +196,7 @@ printBin:
 
 	#printando a string binaria
 	li $v0, 4
-	move $a0, $t7
+	move $a0, $t6
 	syscall
 
 	j end
@@ -385,59 +385,40 @@ DectoHex:
 		 
 DectoBin:
 
-	#salvando o numero decimal
-	lw $s1, numeroDecimal
-
-	#utilizado para efetuar as divisões
-	li $t0, 2
+	#criando uma variavel contadora que ser� utilizada como controle do la�o
+	li $t0, 32
 	
+	la $t6, nro_bin
+	lw $t5, numeroDecimal	
+	move $t3, $t6
 	
-	li $t6, '\0'
-
-	la $t7, nro_bin
+	addi $t3, $t3, 32
+	li $t9, '\0'
+	sb $t9, 0($t3)
 	
-	addi $t7, $t7, 32
-										
-	sb $t6, 0($t7)
-				
-				
-	laco: 
-		blt $s1, $t0, endLaco
-
-		sub $t7, $t7, 1
-						
-		#dividindo num/2			
-		div $s1, $t0 
-					
-		#pegando resto
-		mfhi $t5
-
-		#verificando resultado para converter de acordo com o retorno da branch
-		beq $t5, $zero,addZero
-
-		#nesse caso, não é igual a 0
-		li $t5, '1'
-		j addOne
+	addi $t3, $t3, -1
+	move $t7, $t3
+	li $t8, '0'
+	
+	whi:
+		beqz $t0, ret 
 		
-		addZero:
-			li $t5, '0'
-		addOne:
-			sb $t5, 0($t7)
-					
-		#pegando resultado da divisao
-		mflo $s1
-		j laco
+		#MASCARA PARA BIT MENOS SIGNIFICATIVO
+		and $t4, $t5, 1
+		addi $t4, $t4, 48
+		beq $t4, $t8, rot
+		move $t7, $t3
 
-
-	endLaco:
-		sub $t7, $t7, 1
-		beq $s1,$zero, lastBitZero 
-		li $t5, '1'
-		j lastBitOne
+		rot:
+		#rotacionando
+		ror $t5, $t5, 1		
+	 
+		sb $t4, 0($t3)	
+		addi $t3, $t3, -1	
+		addi $t0, $t0, -1	
+		j whi
 		
-		lastBitZero:
-			li $t5, '0'
+	ret:
+		j printHex
 
-		lastBitOne:
-			sb $t5, 0($t7)
-			j printBin
+
