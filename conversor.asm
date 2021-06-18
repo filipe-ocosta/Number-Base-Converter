@@ -108,7 +108,7 @@ entradaDec:
 	#transferindo o conteudo
 	move $t5, $v0
 	
-	#verificar se o tamanho do decimal � v�lido
+	#verificar se o tamanho do decimal eh valido
 	
 	
 	
@@ -254,19 +254,19 @@ HextoDec:
 		#valor utilizado para comparação posteriormente
 		li $s4, 9
 
-		#caso t7 seja <= 9 pula para a etapa de multiplicação
+		#caso t7 seja <= 9 pula para a etapa de multiplicacao
 		ble $t7, $s4  multiPot 
 		sub $t7, $t7, 7
 
-		#se após a subtração o valor continuar sendo <=9, isso indica erro
+		#se apos a subtracao o valor continuar sendo <=9, isso indica erro
 		ble $t7, $s4, error
 		li $s4, 15
 
 		bgt $t7, $s4, error
 
-	#caso entre nesse rotulo, isso significa que o numero é válido
+	#caso entre nesse rotulo, isso significa que o numero eh valido
 	multiPot:
-		#multiplicando a potencia de 16 com o valor do bit e armzenando em t5
+		#multiplicando a potencia de 16 com o valor do bit e armazenando em t5
 		mul $t5, $s5, $t7
 
 		#s6 guarda o valor do numero decimal
@@ -275,7 +275,7 @@ HextoDec:
 		#multiplicando 16 pela potencia atual de 16 e guardando em s5 para salvar a potencia
 		mul $s5, $s5, $s7
 
-		#decrementendo a posição atual
+		#decrementendo a posicao atual
 		addi $s2, $s2, -1
 		j converterHD
 
@@ -283,13 +283,13 @@ HextoDec:
 
 BintoDec:
 
-	#carregando o endereço da string com o nro binario para s1
+	#carregando o endereco da string com o nro binario para s1
 	la $s1, nro_bin
 
-	#s2 será utilizado para armazenar o tamanho da string
+	#s2 sera utilizado para armazenar o tamanho da string
 	li $s2, 0
 
-	#s3 e s9 utilizados para identificar o fim da string e desviar a função
+	#s3 e s9 utilizados para identificar o fim da string e desviar a funcao
 	li $s3, '\0'
 	li $t9, '\n'
 	
@@ -297,7 +297,7 @@ BintoDec:
 	li $s4, '0'
 	li $t4, '1'
 	
-	#s5 guarda o valor das potencias de 2, subindo a cada execução
+	#s5 guarda o valor das potencias de 2, subindo a cada execucao
 	li $s5, 1
 
 	#utilizado para multiplicar juntamente com s5
@@ -311,10 +311,10 @@ BintoDec:
 	
 	li $t1, 32
 
-	#laço para definir o tamanho da string
+	#laco para definir o tamanho da string
 	findLength:
 
-		#comparações
+		#comparacoes
 		beq $s3, $t7, testeOver
 		beq $t9, $t7, testeOver
 		addi $s1, $s1, 1
@@ -325,8 +325,8 @@ BintoDec:
 	
 	testeOver:
 		bgt $s2, $t1, error
-	#esse laço percorre a string a partir do bit menos significativo, incrementando s6 caso o bit = 1
-	#laço responsavel por verificar se o numero é realmente binario
+	#esse laco percorre a string a partir do bit menos significativo, incrementando s6 caso o bit = 1
+	#laco responsavel por verificar se o numero eh realmente binario
 	converterBD:
 		sw $s6, numeroDecimal
 		beq $s2, $zero, baseSaida
@@ -344,7 +344,7 @@ BintoDec:
 
 DectoHex:
 	
-	#criando uma variavel contadora que ser� utilizada como controle do la�o
+	#criando uma variavel contadora que sera utilizada como controle do laco
 	li $t0, 8 
 	
 	la $t6, nro_hexa
@@ -363,10 +363,10 @@ DectoHex:
 		#rotacionando para os 4 bits mais significativos para que possam ser analisados, porque os bits serao analisados 4 por 4	
 		rol $t5, $t5, 4	
 		
-		#mascarando com 15 para que a analise possa ocorrer, uma vez que apenas os 4 bits mais significativos ser�o 1
+		#mascarando com 15 para que a analise possa ocorrer, uma vez que apenas os 4 bits mais significativos serao 1
 		and $t4, $t5, 15
 		
-		#compara��es e manipula��es de acordo com a tabela ascii	
+		#comparacoes e manipulacoes de acordo com a tabela ascii	
 		ble $t4, 9, soma	
 		addi $t4, $t4, 55	
 		j sai
@@ -385,7 +385,7 @@ DectoHex:
 		 
 DectoBin:
 
-	#criando uma variavel contadora que ser� utilizada como controle do la�o
+	#criando uma variavel contadora que sera utilizada como controle do laco
 	li $t0, 32
 	
 	la $t6, nro_bin
@@ -403,7 +403,7 @@ DectoBin:
 	whi:
 		beqz $t0, ret 
 		
-		#mascarando com 15 para que a analise possa ocorrer, uma vez que apenas os 4 bits mais significativos ser�o 1
+		#mascarando com 15 para que a analise possa ocorrer, uma vez que apenas os 4 bits mais significativos serao 1
 		and $t4, $t5, 1
 		addi $t4, $t4, 48
 		beq $t4, $t8, rot
