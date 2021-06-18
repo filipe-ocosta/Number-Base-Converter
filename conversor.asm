@@ -182,7 +182,7 @@ printHex:
 
 	#printando a string que contem o numero hexadecimal
 	li $v0, 4
-	move $a0, $t7
+	move $a0, $t6
 	syscall
 
 	j end
@@ -403,7 +403,7 @@ DectoBin:
 	whi:
 		beqz $t0, ret 
 		
-		#MASCARA PARA BIT MENOS SIGNIFICATIVO
+		#mascarando com 15 para que a analise possa ocorrer, uma vez que apenas os 4 bits mais significativos ser�o 1
 		and $t4, $t5, 1
 		addi $t4, $t4, 48
 		beq $t4, $t8, rot
@@ -419,6 +419,6 @@ DectoBin:
 		j whi
 		
 	ret:
-		j printHex
+		j printBin
 
 
