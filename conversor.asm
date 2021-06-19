@@ -1,277 +1,229 @@
 .data 
 	.align 0
 	
-	#definindo os valores que serao lidos do teclado
-	#lendo o nro_entrada_D como um int e os outros dois como string
+	#defining labels and space that will be used throughout the program
 	nro_hexa: .space 10
 	nro_bin: .space 34
 	nro_dec: .space 12
 	
-	#strings quer serao impressas ao decorrer do programa
-	str_basei: .asciiz "Insira a base do numero entre as opcoes: B, H ou D\n"
-	str_nro: .asciiz "Insira um numero de acordo com a base escolhida\n"
-	str_basef: .asciiz "Insira a base do numero de saida\n"
-    str_final: .asciiz "O numero convertido para a base escolhida eh: "
+	#strings that will be printed throughout the program
+	str_basei: .asciiz "Enter a number base for the input number between the options: B(for binary), H(for hexadecimal) ou D(for decimal)\n"
+	str_nro: .asciiz "Enter a number less than 2^32 according to the chosen base:\n"
+	str_basef: .asciiz "Enter a number base for the output number\n"
+    str_final: .asciiz "The number converted to the chosen base is: "
 	str_dec: .asciiz "4294967295"
  
-	#string de erro
-	str_erro: .asciiz "\nEntrada invalida!\n"
+	#error string
+	str_erro: .asciiz "\nInvalid input!\n"
 
 	.align 2
 
 	numeroDecimal: .space 4
 	
-.text	
-main:
-	#printando a string base i : "Insira a base do numero entre as opcoes: B, H ou D\n"
+.text
+
+main:	
 	li $v0, 4 
 	la $a0, str_basei
-	syscall
-	
-	#lendo o char que refere a base inicial
+	syscall				#printing string str_basei
+		
 	li $v0, 12
-	syscall
-	#movendo para t0 o conteudo de v0
-	move $t0, $v0
-	#lendo o "\n" que sobra
+	syscall				#reading the char that refers to the input numerical base
+	move $t0, $v0		#moving the char read in $v0 to register $t0 
+
 	li $v0, 12
-	syscall
+	syscall				#reading the character "\n" after the refered char
 	
-	#confere se a base eh hexadecimal
+	#comparing the char in $t0 to confer the type of input
 	li $s0, 'H'
-	beq $t0, $s0, entradaHex
+	beq $t0, $s0, entradaHex	#branching to hex input routine
 	li $s0, 'h'
 	beq $t0, $s0, entradaHex
 
-	#confere se a base eh binaria
 	li $s0, 'B'
-	beq $t0, $s0, entradaBin
+	beq $t0, $s0, entradaBin	#branching to binary input routine
 	li $s0, 'b'
 	beq $t0, $s0, entradaBin
 
-	#confere se a base eh decimal
 	li $s0, 'D'
-	beq $t0, $s0, entradaDec
+	beq $t0, $s0, entradaDec	#branching to decimal input routine
 	li $s0, 'd'
 	beq $t0, $s0, entradaDec
 
-error: 						#printa mensagem de erro
+	#if the input is not equal to any of the number bases, the program goes to "error"
+
+error:
 	li $v0, 4
-	la $a0, str_erro
+	la $a0, str_erro			#prints error message "Invalid input"! and goes to "end"
+	syscall
+	
+end:						
+	li $v0, 10					#ends the program
 	syscall
 
-end:						#finaliza o programa
-	li $v0, 10
-	syscall
-
+#################################################
+# Routines to read the input number in any base #
+#################################################
 
 entradaHex:
-	#printando string
 	li $v0, 4
 	la $a0, str_nro
-	syscall
+	syscall				#printing string str_nro
 
-	#lendo o numero hexa como uma string
 	li $v0, 8
-	la $a0, nro_hexa
+	la $a0, nro_hexa	#reading the input hex number as a string
 	li $a1, 10
 	syscall
 
-	j HextoDec
-
+	j HextoDec			#jump to the routine that will turn the hex into a decimal number
 
 entradaBin:
-	#printando uma string
 	li $v0, 4
 	la $a0, str_nro
-	syscall
+	syscall				#printing string str_nro
 
-	#lendo o numero binario como uma string
 	li $v0, 8
-	la $a0, nro_bin
+	la $a0, nro_bin		#reading the input binary number as a string
 	li $a1, 34
 	syscall
 
-	j BintoDec
-
+	j BintoDec			#jump to the routine that will turn the binary into a decimal number
 
 entradaDec:
-
-	#printado uma string
 	li $v0, 4
 	la $a0, str_nro
-	syscall
+	syscall				#printing string str_nro
 
-	#lendo um inteiro
 	li $v0, 8
-	la $a0, nro_dec
+	la $a0, nro_dec		#reading the input decimal number as a string
 	li $a1, 12
 	syscall
 	
-	j StrtoDec
+	j StrtoDec			#jump to the routine that will turn the string into a int type decimal
+
+#############################################
+# Routine to read the output numerical base #
+#############################################
 
 baseSaida:
-	#printar "Insira a base do numero de saida\n"
 	li, $v0, 4
 	la, $a0, str_basef
-	syscall
+	syscall				#printing string str_basef
 	
-	#lendo o char que refere a base final
-	li $v0, 12
+	li $v0, 12			#reading the char that refers to the input numerical base
 	syscall
-	
-	#movendo para t1 o conteudo de v0
-	move $t1, $v0
-	
-	#lendo o "\n" que sobra
-	li $v0, 12
-	syscall
+	move $t0, $v0		#moving the char read in $v0 to register $t0 
 
-		
+	li $v0, 12
+	syscall				#reading the character "\n" after the refered char
+
 sentToConverter:
-	#confere se a base de saida eh decimal
+	#comparing the char in $t0 to confer the type of output
 	li $s0, 'D'
-	beq $t1, $s0, printDec
+	beq $t0, $s0, printDec	#branching to decimal output routine
 	li $s0, 'd'
-	beq $t1, $s0, printDec
+	beq $t0, $s0, printDec
 
-	#confere se a base de saida eh hexadecimal
 	li $s0, 'H'
-	beq $t1, $s0, DectoHex
+	beq $t0, $s0, DectoHex	#branching to hex output routine
 	li $s0, 'h'
-	beq $t1, $s0, DectoHex
+	beq $t0, $s0, DectoHex
 
-	#confere se a base de saida eh binaria
 	li $s0, 'B'
-	beq $t1, $s0, DectoBin
+	beq $t0, $s0, DectoBin	#branching to binary output routine
 	li $s0, 'b'
-	beq $t1, $s0, DectoBin
+	beq $t0, $s0, DectoBin
 
-	j error
+	j error		#if $t0 is not equal to any of the number bases, the program goes to "error"
+
+########################################################
+# Routines to print the output number after conversion #
+########################################################
 
 printDec:
-
 	#printando uma string
 	li $v0, 4 
 	la $a0, str_final
-	syscall
+	syscall					#printing string str_final
 
-	#printando o decimal
 	li $v0, 36
 	lw $a0, numeroDecimal
-	syscall
+	syscall					#printing the variable numeroDecimal as an unsigned int
 
-	j end
-
+	j end					#ends the program
 
 printHex:
-
-	#printando uma string
 	li $v0, 4 
 	la $a0, str_final
-	syscall
+	syscall					#printing string str_final
 
-	#printando a string que contem o numero hexadecimal
 	li $v0, 4
-	move $a0, $t7
+	move $a0, $t7			#printing the string that contains the hex number
 	syscall
 
-	j end
-
+	j end					#ends the program
 
 printBin:
-	#printando uma string
 	li $v0, 4 
 	la $a0, str_final
-	syscall
+	syscall					#printing string str_final
 
-	#printando a string binaria
 	li $v0, 4
-	move $a0, $t7
+	move $a0, $t7			#printing the string that contains the binary number
 	syscall
 
-	j end
+	j end					#ends the program
 
-##############################################################################################################################
-# Conversores
+#################################################
+# Converters from input strings to int variable #
+#################################################
 
 HextoDec:
-	
-	#carregando o endereço da string com o nro hexadecimal para s1
-	la $s1, nro_hexa
-
-	#s2 será utilizado para armazenar o tamanho da string
-	li $s2, 0
-	
-	#s4 sera usado para armazenar o tamanho maximo da string
-	li $s4, 8
-
-	#s3 e s9 utilizados para identificar o fim da string e desviar a função
+	la $s1, nro_hexa		#moving to $s1 the address of nro_hexa string
+	li $s2, 0				#initializing register $s2 which will store the length of the string
+	li $s4, 8				#storing in $s4 the maximum length of the string
 	li $s3, '\0'
-	li $t9, '\n'
+	li $t9, '\n'			#$s3 and $t9 will be used to find the end of string
+	li $s5, 1				#$s5 holds the value of the powers of 16, starting with 16^0 and increasing the exponent with each execution
+	li $s7, 16				#multiplies the $s5 incresing the exponent
+	li $s6, 0				#used as an adder
+	lb $t7, 0($s1)			#$t7 will store the value of each char in the string
 
-	#s5 guarda o valor das potencias de 16, subindo a cada execução
-	li $s5, 1
-
-	#utilizado para multiplicar juntamente com s5
-	li $s7, 16
-
-	#utilizado como somador
-	li $s6, 0
-	
-
-	#t7 vai guardar o valor de cada bit da string
-	lb $t7, 0($s1)
-
-	achaTamanho:
-	#comparações
-		beq $s3, $t7, testeOverflow
+	achaTamanho:						#this function traverses the string to find the length
+		beq $s3, $t7, testeOverflow 	#breaks loop if end of string is found
 		beq $t9, $t7, testeOverflow
-		addi $s1, $s1, 1
-		addi $s2, $s2, 1
+		addi $s1, $s1, 1				#when the loop ends, it points to the last element of the string
+		addi $s2, $s2, 1				#store the length of string
 		lb $t7, 0($s1)
 		j achaTamanho
 	
 	testeOverflow:
-		bgt $s2, $s4, error
+		bgt $s2, $s4, error				#tests if there is an overflow by comparing the length of string
 	converterHD:
-		sw $s6, numeroDecimal
-		beq $s2, $zero, baseSaida
-		addi $s1, $s1, -1
+		sw $s6, numeroDecimal			#store the final sum value in numeroDecimal
+		beq $s2, $zero, baseSaida		#ends the loop when the entire string has been traversed
+	
+		addi $s1, $s1, -1				#move to $t7 the value of next char
 		lb $t7, 0($s1)
-		sub $t7, $t7, 48
-		blt $t7, $zero, error 
-		
-		#valor utilizado para comparação posteriormente
-		li $s4, 9
 
-		#caso t7 seja <= 9 pula para a etapa de multiplicacao
+		sub $t7, $t7, 48				#sequency of tests to extract character values
+		blt $t7, $zero, error 			#verify possible errors and ends the program if finds one
+		li $s4, 9
 		ble $t7, $s4  multiPot 
 		sub $t7, $t7, 7
-
-		#se apos a subtracao o valor continuar sendo <=9, isso indica erro
 		ble $t7, $s4, error
 		li $s4, 15
-
 		ble $t7, $s4, multiPot
 		sub $t7, $t7, 32
 		bgt $t7, $s4, error
 		li $s4, 10
 		blt $t7, $s4, error
 
-	#caso entre nesse rotulo, isso significa que o numero eh valido
 	multiPot:
-		#multiplicando a potencia de 16 com o valor do bit e armazenando em t5
-		mul $t5, $s5, $t7
-
-		#s6 guarda o valor do numero decimal
-		add $s6, $s6, $t5
-
-		#multiplicando 16 pela potencia atual de 16 e guardando em s5 para salvar a potencia
-		mul $s5, $s5, $s7
-
-		#decrementendo a posicao atual
-		addi $s2, $s2, -1
+		mul $t5, $s5, $t7		#multiplying the power of 16 by the value of the char and storing it in $t5
+		add $s6, $s6, $t5		#store the sum value in $s6
+		mul $s5, $s5, $s7		#increasing the power of 16 exponent
+		addi $s2, $s2, -1		#decreasing the current position
 		j converterHD
 
 	
@@ -401,7 +353,9 @@ StrtoDec:
 		addi $s2, $s2, -1
 		j converterSD
 
-
+#######################################################
+# Converters from int to correct numerical base output #
+#######################################################
 
 DectoHex:
 	
