@@ -10,7 +10,7 @@
 	str_basei: .asciiz "Enter a number base for the input number between the options: B(for binary), H(for hexadecimal) ou D(for decimal)\n"
 	str_nro: .asciiz "Enter a number less than 2^32 according to the chosen base:\n"
 	str_basef: .asciiz "Enter a number base for the output number\n"
-    str_final: .asciiz "The number converted to the chosen base is: "
+		str_final: .asciiz "The number converted to the chosen base is: "
 	str_dec: .asciiz "4294967295"
  
 	#error string
@@ -186,10 +186,10 @@ BintoDec:
 		lb $t7, 0($s1)
 		
 		beq $s4, $t7, continue		#if char equal to '0' goes to "continue"
-		bne $t4, $t7, error			#if char different of '1' goes to error
-		add $s6, $s6, $s5			#adding the power of 2 to the sum if char equal to '1'
+		bne $t4, $t7, error		#if char different of '1' goes to error
+		add $s6, $s6, $s5		#adding the power of 2 to the sum if char equal to '1'
 		continue:
-			mul $s5, $s5, $s7		#increasing the power of 2 exponent
+			mul $s5, $s5, $s7	#increasing the power of 2 exponent
 			addi $s2, $s2, -1		
 			j converterBD
 
@@ -217,7 +217,7 @@ StrtoDec:
 	
 	testeO:
 		bgt $s2, $s7, error		#tests if there is an overflow by comparing the length of string
-		bne $s2, $s7, converterSD		#if the length of string was less than 10 goes to converterSD
+		bne $s2, $s7, converterSD	#if the length of string was less than 10 goes to converterSD
 		sub $s1, $s1, $s2		#other way it tests if the number is equal or greater than 2^32
 		lb $t7, 0($s1)
 		bgt $t7, $t8, error
@@ -278,17 +278,15 @@ sentToConverter:
 ########################################################
 
 DectoHex:
+	li $t0, 8		#storing in $t0 the number of repetitions in the loop
 	
-	#criando uma variavel contadora que sera utilizada como controle do laco
-	li $t0, 8 
-	
-	la $t6, nro_hexa
-	lw $t5, numeroDecimal	
+	la $t6, nro_hexa		#moving to $t6 the address of nro_hexa string
+	lw $t5, numeroDecimal		#moving to $t5 the content of numeroDecimal
 	move $t3, $t6
 	
 	addi $t3, $t3, 8
 	li $t9, '\0'
-	sb $t9, 0($t3)
+	sb $t9, 0($t3)		#storing '\0' in the last position of string
 	
 	addi $t3, $t3, -1
 	move $t7, $t3
@@ -296,18 +294,14 @@ DectoHex:
 	
 	while:
 		beqz $t0, retorno 
-		
-		#mascarando com 15 para que a analise possa ocorrer, uma vez que apenas os 4 bits mais significativos serao 1
-		and $t4, $t5, 15
+		and $t4, $t5, 15		#masking the value with 15, so 4 bits are analyzed at a time
 		beq $t4, $t8, rotacao
-		move $t7, $t3
+		move $t7, $t3			#storing in $t7 the address of the first char other than '0' in the string
 		
-		#rotacionando os bits para que a mascara seja aplicada em outras partes do numero inteiro
 		rotacao:
-			ror $t5, $t5, 4	
-
-		#comparacoes e manipulacoes de acordo com a tabela ascii	
-		ble $t4, 9, soma	
+			ror $t5, $t5, 4		#rotating the bits so the mask is applied to other parts of the integer
+	
+		ble $t4, 9, soma		#comparisons and manipulations according to the ascii table
 		addi $t4, $t4, 55	
 		j sai
 	 
@@ -324,17 +318,15 @@ DectoHex:
 		j printHex
 		 
 DectoBin:
-
-	#criando uma variavel contadora que sera utilizada como controle do laco
-	li $t0, 32
+	li $t0, 32		#storing in $t0 the number of repetitions in the loop
 	
-	la $t6, nro_bin
-	lw $t5, numeroDecimal	
+	la $t6, nro_bin		#moving to $t6 the address of nro_bin string
+	lw $t5, numeroDecimal		#moving to $t5 the content of numeroDecimal
 	move $t3, $t6
 	
 	addi $t3, $t3, 32
 	li $t9, '\0'
-	sb $t9, 0($t3)
+	sb $t9, 0($t3)		#storing '\0' in the last position of string
 	
 	addi $t3, $t3, -1
 	move $t7, $t3
@@ -342,16 +334,13 @@ DectoBin:
 	
 	whi:
 		beqz $t0, ret 
-		
-		#mascarando com 15 para que a analise possa ocorrer, uma vez que apenas os 4 bits mais significativos serao 1
-		and $t4, $t5, 1
+		and $t4, $t5, 1		#masking the value with 1, so 1 bits are analyzed at a time
 		addi $t4, $t4, 48
 		beq $t4, $t8, rot
-		move $t7, $t3
+		move $t7, $t3			#storing in $t7 the address of the first char other than '0' in the string
 
 		rot:
-		#rotacionando
-		ror $t5, $t5, 1		
+			ror $t5, $t5, 1		#rotating the bits so the mask is applied to other parts of the integer
 	 
 		sb $t4, 0($t3)	
 		addi $t3, $t3, -1	
