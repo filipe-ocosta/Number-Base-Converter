@@ -29,7 +29,7 @@ main:
 		
 	li $v0, 12
 	syscall				#reading the char that refers to the input numerical base
-	move $t0, $v0		#moving the char read in $v0 to register $t0 
+	move $t0, $v0			#moving the char read in $v0 to register $t0 
 
 	li $v0, 12
 	syscall				#reading the character "\n" after the refered char
@@ -54,11 +54,11 @@ main:
 
 error:
 	li $v0, 4
-	la $a0, str_erro			#prints error message "Invalid input"! and goes to "end"
+	la $a0, str_erro		#prints error message "Invalid input"! and goes to "end"
 	syscall
 	
 end:						
-	li $v0, 10					#ends the program
+	li $v0, 10			#ends the program
 	syscall
 
 #################################################
@@ -71,7 +71,7 @@ entradaHex:
 	syscall				#printing string str_nro
 
 	li $v0, 8
-	la $a0, nro_hexa	#reading the input hex number as a string
+	la $a0, nro_hexa		#reading the input hex number as a string
 	li $a1, 10
 	syscall
 
@@ -83,7 +83,7 @@ entradaBin:
 	syscall				#printing string str_nro
 
 	li $v0, 8
-	la $a0, nro_bin		#reading the input binary number as a string
+	la $a0, nro_bin			#reading the input binary number as a string
 	li $a1, 34
 	syscall
 
@@ -95,7 +95,7 @@ entradaDec:
 	syscall				#printing string str_nro
 
 	li $v0, 8
-	la $a0, nro_dec		#reading the input decimal number as a string
+	la $a0, nro_dec			#reading the input decimal number as a string
 	li $a1, 12
 	syscall
 	
@@ -112,7 +112,7 @@ baseSaida:
 	
 	li $v0, 12			#reading the char that refers to the input numerical base
 	syscall
-	move $t0, $v0		#moving the char read in $v0 to register $t0 
+	move $t0, $v0			#moving the char read in $v0 to register $t0 
 
 	li $v0, 12
 	syscall				#reading the character "\n" after the refered char
@@ -120,21 +120,21 @@ baseSaida:
 sentToConverter:
 	#comparing the char in $t0 to confer the type of output
 	li $s0, 'D'
-	beq $t0, $s0, printDec	#branching to decimal output routine
+	beq $t0, $s0, printDec		#branching to decimal output routine
 	li $s0, 'd'
 	beq $t0, $s0, printDec
 
 	li $s0, 'H'
-	beq $t0, $s0, DectoHex	#branching to hex output routine
+	beq $t0, $s0, DectoHex		#branching to hex output routine
 	li $s0, 'h'
 	beq $t0, $s0, DectoHex
 
 	li $s0, 'B'
-	beq $t0, $s0, DectoBin	#branching to binary output routine
+	beq $t0, $s0, DectoBin		#branching to binary output routine
 	li $s0, 'b'
 	beq $t0, $s0, DectoBin
 
-	j error		#if $t0 is not equal to any of the number bases, the program goes to "error"
+	j error				#if $t0 is not equal to any of the number bases, the program goes to "error"
 
 ########################################################
 # Routines to print the output number after conversion #
@@ -144,35 +144,35 @@ printDec:
 	#printando uma string
 	li $v0, 4 
 	la $a0, str_final
-	syscall					#printing string str_final
+	syscall				#printing string str_final
 
 	li $v0, 36
 	lw $a0, numeroDecimal
-	syscall					#printing the variable numeroDecimal as an unsigned int
+	syscall				#printing the variable numeroDecimal as an unsigned int
 
-	j end					#ends the program
+	j end				#ends the program
 
 printHex:
 	li $v0, 4 
 	la $a0, str_final
-	syscall					#printing string str_final
+	syscall				#printing string str_final
 
 	li $v0, 4
 	move $a0, $t7			#printing the string that contains the hex number
 	syscall
 
-	j end					#ends the program
+	j end				#ends the program
 
 printBin:
 	li $v0, 4 
 	la $a0, str_final
-	syscall					#printing string str_final
+	syscall				#printing string str_final
 
 	li $v0, 4
 	move $a0, $t7			#printing the string that contains the binary number
 	syscall
 
-	j end					#ends the program
+	j end				#ends the program
 
 #################################################
 # Converters from input strings to int variable #
@@ -180,34 +180,34 @@ printBin:
 
 HextoDec:
 	la $s1, nro_hexa		#moving to $s1 the address of nro_hexa string
-	li $s2, 0				#initializing register $s2 which will store the length of the string
-	li $s4, 8				#storing in $s4 the maximum length of the string
+	li $s2, 0			#initializing register $s2 which will store the length of the string
+	li $s4, 8			#storing in $s4 the maximum length of the string
 	li $s3, '\0'
 	li $t9, '\n'			#$s3 and $t9 will be used to find the end of string
-	li $s5, 1				#$s5 holds the value of the powers of 16, starting with 16^0 and increasing the exponent with each execution
-	li $s7, 16				#multiplies the $s5 incresing the exponent
-	li $s6, 0				#used as an adder
+	li $s5, 1			#$s5 holds the value of the powers of 16, starting with 16^0 and increasing the exponent with each execution
+	li $s7, 16			#multiplies the $s5 incresing the exponent
+	li $s6, 0			#used as an adder
 	lb $t7, 0($s1)			#$t7 will store the value of each char in the string
 
-	achaTamanho:						#this function traverses the string to find the length
+	achaTamanho:				#this function traverses the string to find the length
 		beq $s3, $t7, testeOverflow 	#breaks loop if end of string is found
 		beq $t9, $t7, testeOverflow
-		addi $s1, $s1, 1				#when the loop ends, it points to the last element of the string
-		addi $s2, $s2, 1				#store the length of string
+		addi $s1, $s1, 1		#when the loop ends, it points to the last element of the string
+		addi $s2, $s2, 1		#store the length of string
 		lb $t7, 0($s1)
 		j achaTamanho
 	
 	testeOverflow:
-		bgt $s2, $s4, error				#tests if there is an overflow by comparing the length of string
+		bgt $s2, $s4, error		#tests if there is an overflow by comparing the length of string
 	converterHD:
-		sw $s6, numeroDecimal			#store the final sum value in numeroDecimal
-		beq $s2, $zero, baseSaida		#ends the loop when the entire string has been traversed
+		sw $s6, numeroDecimal		#store the final sum value in numeroDecimal
+		beq $s2, $zero, baseSaida	#ends the loop when the entire string has been traversed
 	
-		addi $s1, $s1, -1				#move to $t7 the value of next char
+		addi $s1, $s1, -1		#move to $t7 the value of next char
 		lb $t7, 0($s1)
 
-		sub $t7, $t7, 48				#sequency of tests to extract character values
-		blt $t7, $zero, error 			#verify possible errors and ends the program if finds one
+		sub $t7, $t7, 48		#sequency of tests to extract character values
+		blt $t7, $zero, error 		#verify possible errors and ends the program if finds one
 		li $s4, 9
 		ble $t7, $s4  multiPot 
 		sub $t7, $t7, 7
