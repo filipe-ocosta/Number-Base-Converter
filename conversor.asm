@@ -10,7 +10,7 @@
 	str_basei: .asciiz "Enter a number base for the input number between the options: B(for binary), H(for hexadecimal) ou D(for decimal)\n"
 	str_nro: .asciiz "Enter a number less than 2^32 according to the chosen base:\n"
 	str_basef: .asciiz "Enter a number base for the output number\n"
-		str_final: .asciiz "The number converted to the chosen base is: "
+	str_final: .asciiz "The number converted to the chosen base is: "
 	str_dec: .asciiz "4294967295"
  
 	#error string
@@ -278,7 +278,7 @@ sentToConverter:
 ########################################################
 
 DectoHex:
-	li $t0, 8		#storing in $t0 the number of repetitions in the loop
+	li $t0, 8			#storing in $t0 the number of repetitions in the loop
 	
 	la $t6, nro_hexa		#moving to $t6 the address of nro_hexa string
 	lw $t5, numeroDecimal		#moving to $t5 the content of numeroDecimal
@@ -286,7 +286,7 @@ DectoHex:
 	
 	addi $t3, $t3, 8
 	li $t9, '\0'
-	sb $t9, 0($t3)		#storing '\0' in the last position of string
+	sb $t9, 0($t3)			#storing '\0' in the last position of string
 	
 	addi $t3, $t3, -1
 	move $t7, $t3
@@ -318,15 +318,15 @@ DectoHex:
 		j printHex
 		 
 DectoBin:
-	li $t0, 32		#storing in $t0 the number of repetitions in the loop
+	li $t0, 32			#storing in $t0 the number of repetitions in the loop
 	
-	la $t6, nro_bin		#moving to $t6 the address of nro_bin string
+	la $t6, nro_bin			#moving to $t6 the address of nro_bin string
 	lw $t5, numeroDecimal		#moving to $t5 the content of numeroDecimal
 	move $t3, $t6
 	
 	addi $t3, $t3, 32
 	li $t9, '\0'
-	sb $t9, 0($t3)		#storing '\0' in the last position of string
+	sb $t9, 0($t3)			#storing '\0' in the last position of string
 	
 	addi $t3, $t3, -1
 	move $t7, $t3
@@ -334,7 +334,7 @@ DectoBin:
 	
 	whi:
 		beqz $t0, ret 
-		and $t4, $t5, 1		#masking the value with 1, so 1 bits are analyzed at a time
+		and $t4, $t5, 1			#masking the value with 1, so 1 bits are analyzed at a time
 		addi $t4, $t4, 48
 		beq $t4, $t8, rot
 		move $t7, $t3			#storing in $t7 the address of the first char other than '0' in the string
